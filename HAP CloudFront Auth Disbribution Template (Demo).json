@@ -1,0 +1,182 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "HAP-CloudFront-Auth-Distribution-Infrastructure",
+  "Parameters": {
+	"ApplicationName": {
+      "Type": "String",
+      "Description": "Name of application being deployed",
+      "Default": "HAP"
+    },
+	"ApplicationNameLowercase": {
+      "Type": "String",
+      "Description": "Name of application being deployed (all lowercase letters)",
+      "Default": "hap"
+    },	
+	"AppEnvironment": {
+      "Type": "String",
+      "Description": "Environment application is being deployed into",
+      "Default": "Demo"
+    },
+	"AppEnvironmentLowercase": {
+      "Type": "String",
+      "Description": "Environment application is being deployed into (all lowercase letters)",
+      "Default": "demo"
+    },
+	"S3BucketCloudFrontAuth": {
+      "Type": "String",
+      "Description": "Origin S3 Bucket for CloudFront Distribution",
+      "Default": "hap-demo-auth"
+    },	
+	"APIGatewayURL": {
+      "Type": "String",
+      "Description": "URL for API Gateway instance",
+      "Default": "https://i6ab4invng.execute-api.us-east-2.amazonaws.com"
+    },
+	"SslCertArn": {
+      "Type": "String",
+      "Description": "Arn for SSL Cert used on CloudFront distribution",
+      "Default": "arn:aws:acm:us-east-1:135972480672:certificate/dd23684a-4100-4d8b-805b-2eccca421e85"
+    }		
+  },
+  
+  "Resources": {
+  
+		"CloudFrontAuthOAI": {
+			"Type": "AWS::CloudFront::CloudFrontOriginAccessIdentity",
+			"Properties": {
+				"CloudFrontOriginAccessIdentityConfig": {
+					"Comment": "CloudFront OAI providing read access to Front End Angular S3 Bucket"
+				}
+			}
+		},	
+    "CloudFrontAuthAngularDistribution": {
+      "Type": "AWS::CloudFront::Distribution",
+			"DependsOn": "CloudFrontAuthOAI",
+      "Properties": {
+        "DistributionConfig": {
+          "Aliases": [
+            "portal-demo.huronaccelerators.com"
+          ],			
+          "Enabled": "true",
+					"IPV6Enabled": "true",		
+					"HttpVersion": "http2",
+          "DefaultRootObject": "index.html",
+          "PriceClass": "PriceClass_All",
+          "CustomErrorResponses": [
+            {
+              "ErrorCachingMinTTL": 1,
+              "ErrorCode": 403,
+              "ResponseCode": "200",
+              "ResponsePagePath": "/index.html"
+            },
+            {
+              "ErrorCachingMinTTL": 1,
+              "ErrorCode": 404,
+              "ResponseCode": "200",
+              "ResponsePagePath": "/index.html"
+            }
+          ],
+          "DefaultCacheBehavior": {
+            "TargetOriginId": "S3-hap-demo-auth",
+            "ViewerProtocolPolicy": "redirect-to-https",
+            "MinTTL": 0,
+            "AllowedMethods": [
+              "HEAD",
+              "GET"
+            ],
+            "CachedMethods": [
+              "HEAD",
+              "GET"
+            ],
+            "ForwardedValues": {
+              "QueryString": "true",
+              "Headers": [
+                "Accept",
+                "Access-Control-Request-Headers",
+                "Access-Control-Request-Method",
+                "Authorization",
+                "Referer"
+              ],
+              "Cookies": {
+                "Forward": "all"
+              }
+            }
+          },
+          "Origins": [
+            {
+              "DomainName": { "Fn::Sub": "${ApplicationNameLowercase}-${AppEnvironmentLowercase}-auth.s3.amazonaws.com" },
+              "Id": "S3-hap-demo-auth",
+							"OriginCustomHeaders": [
+								{
+									"HeaderName" : "Origin",
+									"HeaderValue" : { "Ref": "APIGatewayURL" }
+								}
+							],	
+							"S3OriginConfig": {
+								"OriginAccessIdentity": { "Fn::Join" : [ "", [ "origin-access-identity/cloudfront/", { "Ref": "CloudFrontAuthOAI" } ] ] }
+							}
+            }
+          ],
+          "Restrictions": {
+            "GeoRestriction": {
+              "RestrictionType": "none",
+              "Locations": [
+
+              ]
+            }
+          },
+          "ViewerCertificate": {
+						"AcmCertificateArn": { "Ref": "SslCertArn" },
+            "SslSupportMethod": "sni-only",		  
+            "MinimumProtocolVersion": "TLSv1.1_2016"
+          }
+        }
+      }
+    },	
+    "S3PolicyWebAppBucket": {
+      "Type": "AWS::S3::BucketPolicy",
+      "Properties": {
+        "Bucket": { "Ref": "S3BucketCloudFrontAuth" },
+        "PolicyDocument": {
+          "Version": "2008-10-17",
+          "Id": "PolicyForCloudFrontPrivateContent",
+          "Statement": [
+            {
+              "Sid": "Allow OAI access to Static web-hosting Angular authorization S3 bucket",
+              "Effect": "Allow",
+              "Principal": {
+              "AWS": { "Fn::Join": [ " ", ["arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity", { "Ref": "CloudFrontAuthOAI"} ] ] }
+							},
+							"Action": "s3:GetObject",
+							"Resource": {
+								"Fn::Join": [
+									"",
+									[
+										"arn:aws:s3:::",
+										{ "Ref": "S3BucketCloudFrontAuth" },
+										"/*"
+									]
+								]
+							}
+						}
+          ]
+        }
+      }
+    }
+  },   
+  "Outputs": {	
+    "CloudFrontAuthAngularDistributionName": {
+      "Value": {
+        "Ref": "CloudFrontAuthAngularDistribution"
+      }
+    },
+    "CloudFrontAuthAngularDistributionDomainName": {
+      "Value": {
+        "Fn::GetAtt": [
+          "CloudFrontAuthAngularDistribution",
+          "DomainName"
+        ]
+      }
+    }
+  }
+}  
