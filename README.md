@@ -1,1 +1,0 @@
-# HC-Cloud-DevOps
