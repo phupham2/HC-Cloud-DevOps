@@ -7,7 +7,7 @@ resource "aws_launch_configuration" "studer_launchconfig" {
       {
       device_name           = "/dev/xvdz"
       volume_type           = "gp2"
-      volume_size           = "256"
+      volume_size           = "${var.volume_size}"
       delete_on_termination = true
       },
   ]
@@ -107,7 +107,7 @@ resource "aws_elb" "studer_elb" {
     tags {
         Name = "studer_elb"
     }
-}
+}/*  #database
 resource "aws_db_instance" "default" {
   allocated_storage    = 256
   storage_type         = "gp2"
@@ -119,3 +119,4 @@ resource "aws_db_instance" "default" {
   password             = "foobarbaz"
   parameter_group_name = "default.mysql5.7"
 }
+*/
