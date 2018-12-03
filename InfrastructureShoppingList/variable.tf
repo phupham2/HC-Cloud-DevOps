@@ -5,11 +5,11 @@ variable "aws_region" {
 }
 
 variable "access_key"{
-	default = "AKIAJBPYP445CM6FWVFA"
+	default = "adbfhfbsljljsagbj"
 }
 
 variable "secret_key"{
-	default = "dJsjscy5MxECQ6wnkt9IwURykSXtqlraJBBdhGSi"
+	default = "kwfgekjbewuigwifqiu"
 }
 
 #Variables for EC2 instances 
