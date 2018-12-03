@@ -6,7 +6,6 @@ variable "instance_type" {
     description = "instance type"
 }
 
-
 variable "min_size" {
     description = "min size count"
     default     = 1

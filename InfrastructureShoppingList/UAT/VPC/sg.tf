@@ -35,8 +35,8 @@ resource "aws_security_group" "sg_public" {
         cidr_blocks = ["${var.private_subnet}"]
     }
 }
-
-resource "aws_security_group" "studer_sg" {
+# security group for specific cluster name
+resource "aws_security_group" "sg_${var.cluster_name}" {
     name = "studer_sg"
     #Allowing http request from internet 
     ingress {
@@ -68,9 +68,9 @@ resource "aws_security_group" "studer_sg" {
     }
 }
 
-## Security Group for ELB
-resource "aws_security_group" "sg_elb" {
-  name = "SG ELB"
+## Security Group for wide open ELB
+resource "aws_security_group" "sg_public_elb" {
+  name = "SG Public ELB"
   egress {
     from_port = 8080
     to_port = 80

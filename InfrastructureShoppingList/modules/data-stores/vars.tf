@@ -12,12 +12,16 @@ variable "allocated_storage" {
     description = "db storage space"
 }
 
-variable "username" {
+variable "MasterUsername" {
     description = "username"
 }
 
 variable "password" {
     description = "password"
+}
+
+variable "db_port" {
+    description = "db port"
 }
 
 variable "engine" {
