@@ -51,8 +51,9 @@ resource "aws_security_group" "studer_sg" {
 resource "aws_autoscaling_group" "studer_as" {
   launch_configuration = "${aws_launch_configuration.studer_launchconfig.id}"
   availability_zones = ["${data.aws_availability_zones.studer_useast_az.names}"]
-  min_size = 1
-  max_size = 6
+  min_size = "${var.min_size}"
+  max_size = "${var.max_size}"
+  desired_capacity = "${var.desired_capacity}"
   load_balancers = ["${aws_elb.studer_elb.name}"]
   health_check_type = "ELB"
   tags {
