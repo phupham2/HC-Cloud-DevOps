@@ -1,7 +1,7 @@
-resource "aws_launch_configuration" "studer_launchconfig" {
+resource "aws_launch_configuration" "lc" {
   image_id               = "${lookup(var.amis)}"
   instance_type          = "${var.instance_type}"
-  security_groups        = "${aws_security_group.studer_sg.id}"
+  security_groups        = "${aws_security_group.public.id}"
   key_name               = "${aws_key_pair.studer_ssh.key_name}"
   ebs_block_device      = [
       {
@@ -48,8 +48,8 @@ resource "aws_security_group" "studer_sg" {
     }
 }
 ## Creating AutoScaling Group
-resource "aws_autoscaling_group" "studer_as" {
-  launch_configuration = "${aws_launch_configuration.studer_launchconfig.id}"
+resource "aws_autoscaling_group" "as" {
+  launch_configuration = "${aws_launch_configuration.lc.id}"
   availability_zones = ["${data.aws_availability_zones.studer_useast_az.names}"]
   min_size = "${var.min_size}"
   max_size = "${var.max_size}"
@@ -63,9 +63,9 @@ resource "aws_autoscaling_group" "studer_as" {
   }
 }
 
-resource "aws_elb" "studer_elb" {
-    name = "studer_elb"
-    security_groups = ["${aws_security_group.studer_elb.id}"]
+resource "aws_elb" "elb" {
+    name = "elb"
+    security_groups = ["${aws_security_group.sg_elb.id}"]
     availability_zones = ["${data.aws_availability_zones.all.names}"]
 
     health_check {
