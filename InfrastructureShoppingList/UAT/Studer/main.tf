@@ -9,6 +9,6 @@ module "studer"{
     # data-storage
     allocated_storage   = 256
     engine              = "sql"
-    instance_class      = ""
-    username            = ""
-    password            = ""
+    engine_version      = 
+    instance_class      =  db.t2.small
+

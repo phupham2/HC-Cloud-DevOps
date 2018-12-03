@@ -4,9 +4,8 @@ variable "instance_class" {
     default     = "db.t2.small"
 }
 
-
 variable "aws_route53_zone" {
-    description = ""
+    description = "aws route 53 zone"
 }
 
 variable "allocated_storage" {
@@ -24,3 +23,26 @@ variable "password" {
 variable "engine" {
     description = "Db RDS engine"
 }
+
+variable "name" {
+  description   = "db name"
+}
+
+variable "engine_version" {
+    description = "engine version of DB"
+  
+}
+variable "storage_type" {
+  description   = "storage type db"
+  default       = "gp2"
+}
+
+variable "s3_bucket_name" {
+    description = "s3 bucket name"
+}
+
+variable "s3_bucket_acl" {
+    description = "s3 acl"
+    default     = "private"
+}
+
