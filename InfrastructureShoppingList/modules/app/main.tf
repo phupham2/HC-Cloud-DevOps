@@ -1,4 +1,4 @@
-resource "aws_launch_configuration" "studer_launchconfig" {
+resource "aws_launch_configuration" "lc" {
   image_id               = "${lookup(var.amis)}"
   instance_type          = "${var.instance_type}"
   security_groups        = "${aws_security_group.studer_sg.id}"
@@ -7,7 +7,7 @@ resource "aws_launch_configuration" "studer_launchconfig" {
       {
       device_name           = "/dev/xvdz"
       volume_type           = "gp2"
-      volume_size           = "256"
+      volume_size           = "${var.volume_size}"
       delete_on_termination = true
       },
   ]
@@ -16,8 +16,8 @@ resource "aws_launch_configuration" "studer_launchconfig" {
   }
 }
 
-resource "aws_security_group" "studer_sg" {
-    name = "studer_sg"
+resource "aws_security_group" "${var.cluster_name}_sg" {
+    name = "${var.cluster_name}_sg"
     #Allowing http request from internet 
     ingress {
 	    from_port = 80
@@ -48,24 +48,24 @@ resource "aws_security_group" "studer_sg" {
     }
 }
 ## Creating AutoScaling Group
-resource "aws_autoscaling_group" "studer_as" {
-  launch_configuration = "${aws_launch_configuration.studer_launchconfig.id}"
+resource "aws_autoscaling_group" "as" {
+  launch_configuration = "${aws_launch_configuration.lc.id}"
   availability_zones = ["${data.aws_availability_zones.studer_useast_az.names}"]
   min_size = "${var.min_size}"
   max_size = "${var.max_size}"
   desired_capacity = "${var.desired_capacity}"
-  load_balancers = ["${aws_elb.studer_elb.name}"]
+  load_balancers = ["${aws_elb.elb.name}"]
   health_check_type = "ELB"
   tags {
     key = "Name"
-    value = "studer-${count.index}"
+    value = "${var.cluster_name}-${count.index}"
     propagate_at_launch = true
   }
 }
 
-resource "aws_elb" "studer_elb" {
-    name = "studer_elb"
-    security_groups = ["${aws_security_group.studer_elb.id}"]
+resource "aws_elb" "elb" {
+    name = "elb"
+    security_groups = ["${aws_security_group.sg_elb.id}"]
     availability_zones = ["${data.aws_availability_zones.all.names}"]
 
     health_check {
@@ -107,7 +107,7 @@ resource "aws_elb" "studer_elb" {
     tags {
         Name = "studer_elb"
     }
-}
+}/*  #database
 resource "aws_db_instance" "default" {
   allocated_storage    = 256
   storage_type         = "gp2"
@@ -119,3 +119,4 @@ resource "aws_db_instance" "default" {
   password             = "foobarbaz"
   parameter_group_name = "default.mysql5.7"
 }
+*/

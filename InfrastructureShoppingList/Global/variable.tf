@@ -1,26 +1,10 @@
 #Definition of variables
 
-variable "aws_region" {
-	default = "us-east-1"
-}
+variable "cluster_name" {
+	description	= "The name to use for all the cluster resources"
 
-variable "access_key"{
-	default = "adbfhfbsljljsagbj"
 }
-
-variable "secret_key"{
-	default = "kwfgekjbewuigwifqiu"
-}
-
-#Variables for EC2 instances 
-variable "instance_count" {
-        default = "3"
-}
-
-variable "amis" {
-	default = "ami-38708b45"
-}
-
+/*
 #Variable for VPC and Subnets
 variable "vpc_cidr" {
 	default = "192.168.0.0/16"
@@ -31,8 +15,8 @@ variable "public_subnet" {
 variable "private_subnet" {
 	default = "192.168.2.0/24"
 }
-
-
+*/
+/*
 #Variables for DB instances
 variable "storage" {
 	default = 20
@@ -58,6 +42,6 @@ variable "password" {
 
 #Declare the data source for availabilty zones
 data "aws_availability_zones" "myrounding_useast_az" {}
-
+*/
 
 
