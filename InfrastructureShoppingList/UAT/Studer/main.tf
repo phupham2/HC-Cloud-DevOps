@@ -2,6 +2,7 @@
 module "studer_appmachine"{
     source  = "/modules/app"
     amis    = "ami-032a2c09fc31731e9"
+    instance_type   = "m4.medium"
     min_size    = 1
     max_size    = 2
     desired_count   = 1

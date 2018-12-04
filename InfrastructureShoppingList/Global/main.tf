@@ -1,3 +1,10 @@
+provider "aws" {
+  region                  = "eu-west-3"
+  shared_credentials_file = "/c/Users/%user%/.aws/credentials"
+  profile                 = "terraform"
+}
+
+
 /*resource "aws_iam_role" "test_role" {
   name = "test_role"
 

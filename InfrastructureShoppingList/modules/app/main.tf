@@ -1,7 +1,7 @@
 resource "aws_launch_configuration" "lc" {
   image_id               = "${lookup(var.amis)}"
   instance_type          = "${var.instance_type}"
-  security_groups        = "${aws_security_group.public.id}"
+  security_groups        = "${aws_security_group.studer_sg.id}"
   key_name               = "${aws_key_pair.studer_ssh.key_name}"
   ebs_block_device      = [
       {
@@ -16,8 +16,8 @@ resource "aws_launch_configuration" "lc" {
   }
 }
 
-resource "aws_security_group" "studer_sg" {
-    name = "studer_sg"
+resource "aws_security_group" "${var.cluster_name}_sg" {
+    name = "${var.cluster_name}_sg"
     #Allowing http request from internet 
     ingress {
 	    from_port = 80
@@ -54,11 +54,11 @@ resource "aws_autoscaling_group" "as" {
   min_size = "${var.min_size}"
   max_size = "${var.max_size}"
   desired_capacity = "${var.desired_capacity}"
-  load_balancers = ["${aws_elb.studer_elb.name}"]
+  load_balancers = ["${aws_elb.elb.name}"]
   health_check_type = "ELB"
   tags {
     key = "Name"
-    value = "studer-${count.index}"
+    value = "${var.cluster_name}-${count.index}"
     propagate_at_launch = true
   }
 }
